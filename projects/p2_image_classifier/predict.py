@@ -47,27 +47,47 @@ def main():
     parser.add_argument('--category_names', type=str, help='Path to JSON file mapping class indices to flower names.')
     
     args = parser.parse_args()
+    print(f"Arguments parsed: image={args.image}, model={args.model}, top_k={args.top_k}, category_names={args.category_names}", flush=True)
     
     # Load the model
-    model = tf.keras.models.load_model(args.model)
+    try:
+        print("Loading model...", flush=True)
+        model = tf.keras.models.load_model(args.model)
+        print("Model loaded successfully.", flush=True)
+    except Exception as e:
+        print(f"Error loading model: {e}", flush=True)
+        return
     
     # Get predictions
-    probs, classes = predict(args.image, model, args.top_k)
+    try:
+        print("Getting predictions...", flush=True)
+        probs, classes = predict(args.image, model, args.top_k)
+        print(f"Predictions obtained: {len(probs)} classes", flush=True)
+    except Exception as e:
+        print(f"Error getting predictions: {e}", flush=True)
+        return
     
     # Load category names if provided
     class_names = None
     if args.category_names:
-        with open(args.category_names, 'r') as f:
-            class_names = json.load(f)
+        try:
+            print("Loading category names...", flush=True)
+            with open(args.category_names, 'r') as f:
+                class_names = json.load(f)
+            print("Category names loaded.", flush=True)
+        except Exception as e:
+            print(f"Error loading category names: {e}", flush=True)
+            return
     
     # Print results
-    print(f"Image: {args.image}")
+    print(f"Image: {args.image}", flush=True)
     for i, (prob, cls) in enumerate(zip(probs, classes)):
         if class_names:
             flower_name = class_names[cls]
-            print(f"{i+1}: {flower_name} (class {cls}): {prob:.4f}")
+            print(f"{i+1}: {flower_name} (class {cls}): {prob:.4f}", flush=True)
         else:
-            print(f"{i+1}: class {cls}: {prob:.4f}")
+            print(f"{i+1}: class {cls}: {prob:.4f}", flush=True)
+    print("Prediction complete.", flush=True)
 
 if __name__ == "__main__":
     main()
